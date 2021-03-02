@@ -1,5 +1,6 @@
-* 数据库
-  * [MongoDB](database/MongoDB/MongoDB.md)
+* 数据存储
+  * [MongoDB](datastorage/MongoDB/MongoDB.md)
+  * [etcd](datastorage/etcd/README.md)
 
 * 网络
   * [HTTP](network/http/README.md)
