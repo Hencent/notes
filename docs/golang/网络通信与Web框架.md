@@ -83,3 +83,28 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 之前只用默认处理器时，我们需要调用 http.HandleFunc 实现了路由和 Handler 的映射，进行静态路由注册。**但是在实现 Engine 之后，我们拦截了所有的 HTTP 请求，拥有了统一的控制入口。** 在这里我们可以自由定义路由映射的规则，也可以统一添加一些处理逻辑，例如日志、异常处理等。
 
 接下来，要实现一个框架，只要丰富这个自定义 Engine 就可以了。
+
+# Day 2: Context 与 Router
+## Context
+Web 服务实际的任务就是，根据请求 *http.Request，构造响应 http.ResponseWriter。为什么一定要有 Context 呢？
+
+首先，请求信息包含请求首部、请求体等信息。对于请求的查询、解析，很有必要进行封装，避免无谓的重复，防止错误出现，也便于使用。
+
+其次，后端的相应，也不可避免的需要设置状态码、消息类型等内容，也有比较进行封装。对于常见的返回内容：HTML、JSON、String，应该提供一个快捷操作的接口。
+
+其次，为每一次请求与响应提供一个 Context，可以便于处理动态路由、便于加入中间件，**和当前请求强相关的信息都应由 Context 承载**。
+
+```go
+type Context struct {
+	Writer http.ResponseWriter
+	Req *http.Request
+	// request info
+	Path string
+	Method string
+	// response info
+	StatusCode int
+}
+```
+
+## 独立的 Router
+Router 可以被单独提取出来成为一个模块，方便后续进行动态路由等调整。
