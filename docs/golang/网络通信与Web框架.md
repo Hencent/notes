@@ -143,3 +143,60 @@ type node struct {
 ## Context 的变化
 增加一个子段，表示此次请求中解析到的参数。显然也需要新增一个方法来提供访问接口
 
+# Day 4: 分组路由
+实际业务逻辑中，通常有一系列相同前缀的路由需要进行相似的处理。例如：
++ 以/post开头的路由匿名可访问。
++ 以/admin开头的路由需要鉴权。
++ 以/api开头的路由是 RESTful 接口，可以对接第三方平台，需要三方平台鉴权。
+
+此外，路由分组还需要能够实现嵌套，例如 /post 是一个分组，/post/a 和 /post/b 可以是子分组。
+
+有了路由分组，就可以配合中间件，提供丰富的拓展能力。例如 /admin 的分组，可以应用鉴权中间件； / 分组应用日志中间件。
+
+这里创建一个 GroupRouter 的结构。由于 engine 管理所有的资源，所以所有的 RouterGroup 指针共享同一个 engine 实例。engine 甚至可以当成是顶层的 GroupRouter，拥有一个匿名的 GroupRouter。
+```go
+type RouterGroup struct {
+	preifx string
+	middlewares []HandlerFunc
+	engine *Engine
+}
+```
+
+# Day 5:　中间件
+中间件就是非业务的技术类组件。中间件可以由用户自定义，嵌入到框架中，**仿佛是框架的原生功能一样**。
+> 插入点不能太底层，框架本身就是便捷使用的，太底层了用户用起来麻烦。也不能直接变成用户定义函数，否则和用户用户直接定义一组函数，每次在 Handler 中手工调用相比没有多大的优势了。
+
+两个比较常见的需求是：
+1. 框架接收到请求，生成了本次请求的 context之后，先进行一些处理（例如鉴权、记录日志），再让用户函数 handle
+2. 用户函数 handle 完之后，再进行一些额外的操作（如记录处理时间等）
+
+中间件是应用在RouterGroup上的，应用在最顶层的 Group，相当于作用于全局，所有的请求都会被中间件处理。
+
+所以，框架的处理逻辑修订为：
+1. 当接收到请求后，匹配路由，该请求的所有信息都保存在Context中
+2. 查找所有应作用于该路由的中间件，保存在Context中。依次调用用户处理前的中间件
+3. 用户处理函数
+4. 执行用户处理后的中间件
+
+中间件的调用函数函数如下。这样，如果在中间件执行过程中，调用c.Next()，就会执行下一个中间件！后续内容执行完毕后，再执行当前中间件剩余的部分。假设依次注册了 A、B 两个中间件，再将用户处理函数加入 handlers。执行流程为 
+`part1 -> part3 -> Handler -> part 4 -> part2`
+```go
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+
+func A(c *Context) {
+    part1
+    c.Next()
+    part2
+}
+func B(c *Context) {
+    part3
+    c.Next()
+    part4
+}
+```
