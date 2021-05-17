@@ -201,7 +201,7 @@ func B(c *Context) {
 }
 ```
 
-# 静态资源服务 与 服务端渲染
+# Day 6:　静态资源服务 与 服务端渲染
 ## 客户端渲染与服务端渲染
 现在越来越流行前后端分离的开发模式，即 Web 后端提供 RESTful 接口，返回结构化的数据(通常为 JSON 或者 XML)。前端使用 AJAX 技术请求到所需的数据，利用 JavaScript 进行渲染。
 
@@ -219,3 +219,15 @@ func B(c *Context) {
 ## HTML 模板渲染
 Go语言内置了 `text/template` 和 `html/template` 2个模板标准库，其中 `html/template` 为 HTML 提供了较为完整的支持。包括普通变量渲染、列表渲染、对象渲染等。
 需要使用到的有：`*template.Template` 和 `template.FuncMap` 对象，前者将所有的模板加载进内存，后者是所有的自定义模板渲染函数。给用户分别提供了设置自定义渲染函数funcMap和加载模板的方法。具体参见官方文档。
+
+# Day 7:　错误处理
+对一个 Web 框架而言，错误处理机制是非常必要的。可能是框架本身没有完备的测试，导致在某些情况下出现空指针异常等情况。也有可能用户不正确的参数，触发了某些异常，例如数组越界，空指针等。如果因为这些原因导致系统宕机，必然是不可接受的。
+
+在 gee 中添加一个非常简单的错误处理机制，即在此类错误发生时，向用户返回 Internal Server Error，并且在日志中打印必要的错误信息，方便进行错误定位。之前实现了中间件机制，**错误处理也可以作为一个中间件**，增强 gee 框架的能力。
+
+有一个 trace() 函数，这个函数是用来获取触发 panic 的堆栈信息.
++ `runtime.Callers(3, pcs[:])` 用来返回调用栈的程序计数器, 第 0 个 Caller 是 Callers 本身，第 1 个是上一层 trace，第 2 个是再上一层的 defer func。因此，为了日志简洁一点，跳过了前 3 个 Caller。
++ `runtime.FuncForPC(pc)` 获取对应的函数
++ `fn.FileLine(pc)` 获取到调用该函数的文件名和行号
+
+> Tip: defer recover 机制只能针对于当前函数以及直接调用的函数可能参数的 panic。如果没有c.Next()，则handler不是Recovery直接调用的函数，无法recover，panic被net/http自带的recover机制捕获。
