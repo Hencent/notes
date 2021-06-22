@@ -8,7 +8,8 @@
 
 | 内容                         | 状态  |
 | ------------------------------ | ------- |
-| ~~7days-golang 学习 - 分布式缓存~~ | working |
+| ~~7days-golang 学习 - Web 框架~~ | 2021.5.17 Done |
+| 7days-golang 学习 - 分布式缓存 | working |
 | 弹性计算资源共享平台 | pending |
 | etcd                           | pending |
 | 分布式一致性算 RAFT     | pending |
