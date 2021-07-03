@@ -25,5 +25,6 @@
 | 内容                         | 状态  |
 | ------------------------------ | ------- |
 | ~~Protobuf~~ | 2021.7.2 大致了解，战略性放弃 |
+| WebSocket | working |
 | etcd                           | pending |
 | 分布式一致性算 RAFT     | pending |
