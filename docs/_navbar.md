@@ -7,6 +7,8 @@
 
 * [Golang](golang/README.md)
 
+* [CPP](cpp/README.md)
+
 * [OS](OS/README.md)
   * [Linux](OS/Linux/README.md)
 
