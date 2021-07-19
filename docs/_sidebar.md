@@ -7,7 +7,8 @@
 
 * [Golang](golang/README.md)
 
-* [CPP](cpp/README.md)
+* CPP
+  * [深度探索cpp对象模型](cpp/深度探索cpp对象模型.md)
 
 * [OS](OS/README.md)
   * [Linux](OS/Linux/README.md)
@@ -16,6 +17,6 @@
   * [Docker](container/docker/README.md)
   * [kubernetes](container/kubernetes/README.md)
 
-* [杂项]
+* 杂项
   * [protobuf](sundry/protobuf/README.md)
   * [WebSocket](sundry/WebSocket/README.md)

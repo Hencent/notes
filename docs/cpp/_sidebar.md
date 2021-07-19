@@ -1,2 +1,2 @@
-* [cpp](cpp/README.md)
+* cpp
   * [深度探索cpp对象模型](cpp/深度探索cpp对象模型.md)
